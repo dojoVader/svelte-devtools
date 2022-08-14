@@ -6,7 +6,7 @@
   "license": "MIT",
   "scripts": {
     "build:firefox": "cross-env TARGET=firefox rollup -c",
-    "build:chrome": "cross-env TARGET=chrome rollup -c",
+    "build:chrome": "cross-env TARGET=chrome rollup -c -w",
     "build:icon": "node ./scripts/buildIcons.mjs",
     "dev": "http-serve test/public -p 8940 & web-ext run -s dest -u http://127.0.0.1:8940 -u about:debugging && kill $!",
     "package:firefox": "yarpm run build:icon && yarpm run build:firefox && web-ext build -s dest",

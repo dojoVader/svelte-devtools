@@ -10,5 +10,5 @@ function setDarkMode(theme) {
 setDarkMode(devtools.panels.themeName)
 if (devtools.panels.onThemeChanged)
   devtools.panels.onThemeChanged.addListener(setDarkMode)
-
+console.log(App)
 new App({ target: document.body })
