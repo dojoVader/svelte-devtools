@@ -305,3 +305,5 @@ port.onMessage.addListener(msg => {
     }
   }
 })
+
+rootNodes.subscribe(item => console.log('Changes node: %o', item))

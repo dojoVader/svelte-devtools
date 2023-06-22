@@ -17,10 +17,10 @@ function handleToolsMessage(msg, port) {
       setup(msg.tabId, port, msg.profilerEnabled)
       break
     case 'reload':
-      chrome.tabs.reload(msg.tabId, { bypassCache: true })
+      chrome.tabs.reload(msg.tabId, { bypassCache: true }).then()
       break
     default:
-      chrome.tabs.sendMessage(msg.tabId, msg)
+      chrome.tabs.sendMessage(msg.tabId, msg).then()
       break
   }
 }
@@ -45,19 +45,36 @@ function attachScript(tabId, changed) {
     false
     // #endif
   )
-    return
 
-  chrome.tabs.executeScript(tabId, {
-    file: '/privilegedContent.js',
-    runAt: 'document_start',
-  })
+  chrome.scripting.executeScript({
+    target: {
+      tabId
+    },
+    world: "MAIN",
+    files: ['/privilegedContent.js']
+  }).then()
 }
 
+
+
 function setup(tabId, port, profilerEnabled) {
-  chrome.tabs.executeScript(tabId, {
-    code: profilerEnabled ? `window.sessionStorage.SvelteDevToolsProfilerEnabled = "true"` : 'delete window.sessionStorage.SvelteDevToolsProfilerEnabled',
-    runAt: 'document_start',
-  })
+  let code = null
+  if(profilerEnabled){
+    code = `window.sessionStorage.SvelteDevToolsProfilerEnabled = "true";`
+  }else{
+    code = `delete window.sessionStorage.SvelteDevToolsProfilerEnabled;`
+  }
+
+  chrome.scripting.executeScript({
+    target:{
+      tabId
+    },
+    world: "ISOLATED",
+    func: () => {
+       window.sessionStorage.SvelteDevToolsProfilerEnabled = "true"
+    },
+
+  }).then()
 
   toolsPorts.set(tabId, port)
 
@@ -68,7 +85,7 @@ function setup(tabId, port, profilerEnabled) {
     chrome.tabs.sendMessage(tabId, {
       type: 'clear',
       tabId: tabId,
-    })
+    }).then()
   })
 
   chrome.tabs.onUpdated.addListener(attachScript)
